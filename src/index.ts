@@ -24,6 +24,18 @@ const template = fs.readFileSync(
 	"utf8"
 );
 
+function findRowColContext(str: string, start: number, col: number) {
+	const tempString = str.substring(0, start);
+	const allLines = str.split("\n");
+	const lines = tempString.split("\n");
+	const errorLine = lines.length - 1;
+	return [
+		lines.length,
+		start - (tempString.length - lines[lines.length - 1].length) + 1,
+		allLines[errorLine],
+	];
+}
+
 export default createUnplugin((options: UserOptions) => {
 	return {
 		name: "unplugin-pomsky",
@@ -31,10 +43,32 @@ export default createUnplugin((options: UserOptions) => {
 			return id.endsWith(".pom") || id.endsWith(".pomsky");
 		},
 		async transform(code) {
-			const { output } = compile(code, options.flavor ?? "js");
+			const { diagnostics, output } = compile(
+				code,
+				options.flavor ?? "js"
+			);
 			if (output == null) {
-				console.warn(`Failed to compile Pomsky: ${code}`);
-				return null;
+				for (const item of diagnostics) {
+					let error = "Failed to compile Pomsky code.";
+					error += `\n${item.kind} ${item.severity}: ${item.code}`;
+
+					const [row, col, line] = findRowColContext(
+						code,
+						item.range[0],
+						item.range[1]
+					);
+					error += `\n${
+						item.message
+					} at line ${row.toLocaleString()}, column ${col.toLocaleString()}.`;
+
+					if (item.help) error += `\n${item.help}?`;
+
+					error += "\n```regex";
+					error += `\n${line}`;
+					error += "\n```";
+					this.error(error);
+				}
+				return;
 			}
 
 			return (
