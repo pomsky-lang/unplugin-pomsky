@@ -29,7 +29,6 @@ export default {
 			includeOriginal: false, // default = false
 		}),
 	],
-	root: "./test",
 } as UserConfigExport;
 ```
 
