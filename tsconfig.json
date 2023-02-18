@@ -1,0 +1,8 @@
+{
+	"compilerOptions": {
+		"allowImportingTsExtensions": true,
+		"module": "NodeNext",
+		"esModuleInterop": true,
+		"types": ["@types/node", "./src/index.d.ts"]
+	}
+}
