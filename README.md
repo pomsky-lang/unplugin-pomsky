@@ -14,7 +14,7 @@ Use Pomsky along with your JavaScript.
 ## Installation
 
 ```bash
-npm i -D unplugin-pomsky
+pnpm i -D unplugin-pomsky
 ```
 
 `vite.config.ts`
