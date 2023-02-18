@@ -75,8 +75,9 @@ export default createUnplugin((options: UserOptions) => {
 					options.includeOriginal
 						? `\`${code.replace(/`/g, "\\`")}\``
 						: "null"
-				};\nexport const regex = "${output?.replace(/"/g, '\\"')}";\n` +
-				template
+				};\nexport const regex = "${output
+					?.replace(/"/g, '\\"')
+					.replace(/\\/g, "\\\\")}";\n` + template
 			);
 		},
 	};
