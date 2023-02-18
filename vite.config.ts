@@ -5,7 +5,7 @@ export default {
 	plugins: [
 		pomsky.vite({
 			flavor: "js",
-			includeOriginal: false,
+			includeOriginal: true,
 		}),
 	],
 	root: "./test",
