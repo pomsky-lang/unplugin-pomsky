@@ -24,7 +24,7 @@ const template = fs.readFileSync(
 	"utf8"
 );
 
-function findRowColContext(str: string, start: number, col: number) {
+function findRowColContext(str: string, start: number) {
 	const allLines = str.split("\n");
 	const tempString = str.substring(0, start);
 	const lines = tempString.split("\n");
@@ -48,14 +48,13 @@ export default createUnplugin((options: UserOptions) => {
 				options.flavor ?? "js"
 			);
 			if (output == null) {
+				let error = "Failed to compile Pomsky code.";
 				for (const item of diagnostics) {
-					let error = "Failed to compile Pomsky code.";
 					error += `\n${item.kind} ${item.severity}: ${item.code}`;
 
 					const [row, col, line] = findRowColContext(
 						code,
-						item.range[0],
-						item.range[1]
+						item.range[0]
 					);
 					error += `\n${
 						item.message
@@ -66,8 +65,8 @@ export default createUnplugin((options: UserOptions) => {
 					error += "\n```regex";
 					error += `\n${line}`;
 					error += "\n```";
-					this.error(error);
 				}
+				this.error(error);
 				return;
 			}
 
