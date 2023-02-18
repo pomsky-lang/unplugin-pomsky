@@ -1,6 +1,6 @@
 # Unplugin Pomsky
 
-Use Pomsky along with your JavaScript.
+Use [Pomsky](https://pomsky-lang.org/) along with your JavaScript.
 
 ## Support
 
