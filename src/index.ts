@@ -25,13 +25,13 @@ const template = fs.readFileSync(
 );
 
 function findRowColContext(str: string, start: number, col: number) {
-	const tempString = str.substring(0, start);
 	const allLines = str.split("\n");
+	const tempString = str.substring(0, start);
 	const lines = tempString.split("\n");
 	const errorLine = lines.length - 1;
 	return [
 		lines.length,
-		start - (tempString.length - lines[lines.length - 1].length) + 1,
+		start - (tempString.length - lines[errorLine].length) + 1,
 		allLines[errorLine],
 	];
 }
