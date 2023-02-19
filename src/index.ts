@@ -25,15 +25,12 @@ const template = fs.readFileSync(
 );
 
 function findRowColContext(str: string, start: number) {
-	const allLines = str.split("\n");
-	const tempString = str.substring(0, start);
-	const lines = tempString.split("\n");
-	const errorLine = lines.length - 1;
-	return [
-		lines.length,
-		start - (tempString.length - lines[errorLine].length) + 1,
-		allLines[errorLine],
-	];
+	const previousLines = str.slice(0, start).split("\n");
+	const row = previousLines.length;
+	const column = (previousLines[previousLines.length - 1] ?? "").length + 1;
+	const context = str.split("\n")[previousLines.length];
+
+	return { row, column, context };
 }
 
 export default createUnplugin((options: UserOptions) => {
@@ -52,18 +49,18 @@ export default createUnplugin((options: UserOptions) => {
 				for (const item of diagnostics) {
 					error += `\n${item.kind} ${item.severity}: ${item.code}`;
 
-					const [row, col, line] = findRowColContext(
+					const { row, column, context } = findRowColContext(
 						code,
 						item.range[0]
 					);
 					error += `\n${
 						item.message
-					} at line ${row.toLocaleString()}, column ${col.toLocaleString()}.`;
+					} at line ${row.toLocaleString()}, column ${column.toLocaleString()}.`;
 
 					if (item.help) error += `\n${item.help}?`;
 
 					error += "\n```regex";
-					error += `\n${line}`;
+					error += `\n${context}`;
 					error += "\n```";
 				}
 				this.error(error);
