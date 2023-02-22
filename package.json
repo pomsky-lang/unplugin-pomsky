@@ -1,6 +1,6 @@
 {
 	"name": "unplugin-pomsky",
-	"version": "1.0.11",
+	"version": "1.0.12",
 	"description": "Use Pomsky along with your JavaScript.",
 	"types": "./dist/index.d.ts",
 	"exports": {
@@ -37,8 +37,8 @@
 		"vite": "^4.1.2"
 	},
 	"dependencies": {
-		"unplugin": "^1.1.0",
-		"pomsky-wasm": "^0.9.1"
+		"pomsky-wasm": "^0.9.2",
+		"unplugin": "^1.1.0"
 	},
 	"files": [
 		"package.json",
