@@ -1,3 +1,3 @@
-import plugin from "./index";
+import plugin from "./index.js";
 
 export default plugin.esbuild;

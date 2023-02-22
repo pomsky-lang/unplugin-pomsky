@@ -1,11 +1,17 @@
 {
 	"name": "unplugin-pomsky",
-	"version": "1.0.10",
+	"version": "1.0.11",
 	"description": "Use Pomsky along with your JavaScript.",
-	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
 	"exports": {
-		".": "./dist/index.js",
-		"./*": "./dist/*.js"
+		".": {
+			"default": "./dist/index.js",
+			"types": "./dist/index.d.ts"
+		},
+		"./*": {
+			"default": "./dist/*.js",
+			"types": "./dist/*.d.ts"
+		}
 	},
 	"type": "module",
 	"keywords": [

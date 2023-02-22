@@ -1,8 +1,9 @@
-// @ts-nocheck
+export const pomsky: string | null = "$$POMSKY$$";
+export const regex = "$$REGEX$$";
 
 const cache = new Map();
 
-export function make(flags) {
+export function make(flags: string) {
 	if (!flags) flags = "";
 
 	if (cache.has(flags)) {

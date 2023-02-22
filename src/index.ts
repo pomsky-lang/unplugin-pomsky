@@ -75,15 +75,19 @@ const pluginInstance = createUnplugin((options: UserOptions) => {
 				return;
 			}
 
-			return (
-				`export const pomsky = ${
-					options.includeOriginal
-						? `\`${code.replace(/`/g, "\\`")}\``
-						: "null"
-				};\nexport const regex = "${output
-					?.replace(/\\/g, "\\\\")
-					.replace(/"/g, '\\"')}";\n` + template
-			);
+			const pomsky = options.includeOriginal
+				? `\`${code.replace(/`/g, "\\`")}\``
+				: "null";
+			const regex = output?.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+
+			return template.replace(/("\$\$POMSKY\$\$"|\$\$REGEX\$\$)/g, (s) => {
+				if (s === '"$$POMSKY$$"') {
+					return pomsky;
+				} else if (s === "$$REGEX$$") {
+					return regex;
+				}
+				return s;
+			});
 		},
 	};
 });
