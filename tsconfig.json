@@ -1,8 +1,12 @@
 {
 	"compilerOptions": {
-		"allowImportingTsExtensions": true,
-		"module": "NodeNext",
+		"outDir": "./dist",
+		"module": "ESNext",
+		"target": "ESNext",
+		"moduleResolution": "node",
 		"esModuleInterop": true,
-		"types": ["@types/node", "./src"]
-	}
+		"types": ["@types/node"],
+		"declaration": true
+	},
+	"include": ["./src"]
 }

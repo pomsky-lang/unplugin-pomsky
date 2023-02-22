@@ -1,5 +1,5 @@
 import { UserConfigExport } from "vite";
-import pomsky from "./src/index.js";
+import pomsky from "./dist";
 
 export default {
 	plugins: [

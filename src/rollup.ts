@@ -1,3 +1,3 @@
-import plugin from "./index.ts";
+import plugin from "./index";
 
 export default plugin.rollup;

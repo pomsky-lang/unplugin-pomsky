@@ -1,9 +1,17 @@
+// Include the types for the .pom and .pomsky files.
+/// <reference path="../types.d.ts" />
+
 import { createRequire } from "module";
 import { compile, initSync } from "pomsky-wasm";
 import { createUnplugin } from "unplugin";
 
 import fs from "node:fs";
 import path from "node:path";
+
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const _require = createRequire(import.meta.url);
 
@@ -19,10 +27,10 @@ const wasmPath = path.join(
 );
 initSync(fs.readFileSync(wasmPath));
 
-const template = fs.readFileSync(
-	path.resolve(__dirname, "template.js"),
-	"utf8"
-);
+const template = fs
+	.readFileSync(path.resolve(__dirname, "template.js"), "utf8")
+	.replace("// @ts-nocheck", "")
+	.trim();
 
 function findRowColContext(str: string, start: number) {
 	const previousLines = str.slice(0, start).split("\n");
@@ -33,7 +41,7 @@ function findRowColContext(str: string, start: number) {
 	return { row, column, context };
 }
 
-export default createUnplugin((options: UserOptions) => {
+const pluginInstance = createUnplugin((options: UserOptions) => {
 	return {
 		name: "unplugin-pomsky",
 		transformInclude(id) {
@@ -79,3 +87,5 @@ export default createUnplugin((options: UserOptions) => {
 		},
 	};
 });
+
+export default pluginInstance;

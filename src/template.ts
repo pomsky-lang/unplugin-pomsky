@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 const cache = new Map();
 
 export function make(flags) {

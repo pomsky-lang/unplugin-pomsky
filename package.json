@@ -1,7 +1,13 @@
 {
 	"name": "unplugin-pomsky",
-	"version": "1.0.9",
+	"version": "1.0.10",
 	"description": "Use Pomsky along with your JavaScript.",
+	"main": "./dist/index.js",
+	"exports": {
+		".": "./dist/index.js",
+		"./*": "./dist/*.js"
+	},
+	"type": "module",
 	"keywords": [
 		"unplugin",
 		"javascript",
@@ -19,20 +25,20 @@
 	"scripts": {
 		"dev": "vite"
 	},
-	"type": "module",
 	"devDependencies": {
 		"@types/node": "^18.14.0",
 		"typescript": "^4.9.5",
-		"unplugin": "^1.1.0",
 		"vite": "^4.1.2"
 	},
 	"dependencies": {
+		"unplugin": "^1.1.0",
 		"pomsky-wasm": "^0.9.1"
 	},
 	"files": [
 		"package.json",
-		"src",
+		"dist",
 		"LICENSE",
-		"tsconfig.json"
+		"tsconfig.json",
+		"types.d.ts"
 	]
 }
