@@ -46,8 +46,8 @@ export default {
 ### Separate File
 
 ```ts
-// The flavor is optional.
 // The regex source is inlined and the Pomsky code is compiled on build.
+// The flavor is optional.
 import make, { pomsky, regex } from "./regex.pom?flavor=rust";
 
 // Compiles the regex when called.
