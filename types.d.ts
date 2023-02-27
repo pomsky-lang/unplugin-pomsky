@@ -1,15 +1,22 @@
-declare module "*.pom" {
-	export const pomsky: string | null;
-	export const regex: string;
+/// <reference path="./files.d.ts" />
 
-	export function make(flags?: string): RegExp;
-	export default make;
+declare global {
+	function pomsky$(
+		code: string,
+		flavor?:
+			| "js"
+			| "javascript"
+			| "java"
+			| ".net"
+			| "dotnet"
+			| "pcre"
+			| "python"
+			| "ruby"
+			| "rust"
+	): ((flags?: string) => RegExp) & {
+		pomsky: string | null;
+		regex: string;
+	};
 }
 
-declare module "*.pomsky" {
-	export const pomsky: string | null;
-	export const regex: string;
-
-	export function make(flags?: string): RegExp;
-	export default make;
-}
+export {};

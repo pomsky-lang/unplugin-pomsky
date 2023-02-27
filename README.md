@@ -20,11 +20,11 @@ pnpm i -D unplugin-pomsky
 `vite.config.ts`
 ```ts
 import { UserConfigExport } from "vite";
-import pomsky from "unplugin-pomsky/vite";
+import pomsky from "unplugin-pomsky";
 
 export default {
 	plugins: [
-		pomsky({
+		pomsky.vite({
 			flavor: "js", // default = "js"
 			includeOriginal: false, // default = false
 		}),
@@ -43,20 +43,57 @@ export default {
 
 ## Usage
 
+### Separate File
+
 ```ts
-import make, { pomsky, regex } from "./regex.pom";
-
+// The flavor is optional.
 // The regex source is inlined and the Pomsky code is compiled on build.
+import make, { pomsky, regex } from "./regex.pom?flavor=rust";
 
-make(); // Compiles the regex when called.
+// Compiles the regex when called.
+make();
 
-make("gi"); // Optional flags.
+// Optional flags.
+make("gi");
 
+// Automatic caching. Works with flags too!
 for (let i = 0; i < 1_000_000; i++) {
-	make(); // Automatic caching. Works with flags too!
+	make();
 }
 
-pomsky; // The original Pomsky source. Only included with `includeOriginal: true` in the plugin options.
+// The original Pomsky source. Only included with `includeOriginal: true` in the plugin options.
+pomsky;
 
-regex; // The regex source.
+// The regex source.
+regex;
+```
+
+### Inline
+
+```ts
+// The regex source is inlined and the Pomsky code is compiled on build.
+// Compiles the regex when called.
+// No need to import this function since it doesn't actually exist.
+// The flavor is optional.
+const make = pomsky$(`
+['-+']?
+%
+('0' | ['1'-'9'] (','? ['0'-'9'])*)
+('.' ['0'-'9']+)?
+%
+`, "js");
+
+// Optional flags.
+make("gi");
+
+// Automatic caching. Works with flags too!
+for (let i = 0; i < 1_000_000; i++) {
+	make();
+}
+
+// The original Pomsky source. Only included with `includeOriginal: true` in the plugin options.
+make.pomsky;
+
+// The regex source.
+make.regex;
 ```
