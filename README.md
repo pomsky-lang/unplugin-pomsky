@@ -71,8 +71,8 @@ regex;
 ### Inline
 
 ```ts
-// The regex source is inlined and the Pomsky code is compiled on build.
-// Compiles the regex when called.
+// The regex source is inlined and the Pomsky code is compiled on buid.
+
 // No need to import this function since it doesn't actually exist.
 // The flavor is optional.
 const make = pomsky$(`
@@ -82,6 +82,9 @@ const make = pomsky$(`
 ('.' ['0'-'9']+)?
 %
 `, "js");
+
+// Compiles the regex when called.
+make();
 
 // Optional flags.
 make("gi");
