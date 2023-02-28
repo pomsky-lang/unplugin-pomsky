@@ -19,8 +19,9 @@ pnpm i -D unplugin-pomsky
 
 `vite.config.ts`
 ```ts
-import { UserConfigExport } from "vite";
+import fs from "node:fs";
 import pomsky from "unplugin-pomsky";
+import { UserConfigExport } from "vite";
 
 export default {
 	plugins: [
@@ -28,6 +29,7 @@ export default {
 			flavor: "js", // default = "js"
 			includeOriginal: false, // default = false
 			fileExtensions: [".javascript"], // default = []; always checks /"." ["c" "m"]? ["j" "t"] "s" "x"? $/
+			pomskyWASM: fs.readFileSync("path/to/custom/pomsky.wasm"), // default = unplugin-pomsky's package.json pomsky-wasm
 		}),
 	],
 } as UserConfigExport;

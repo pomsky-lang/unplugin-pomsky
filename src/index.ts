@@ -2,7 +2,7 @@
 /// <reference path="../types.d.ts" />
 
 import { createRequire } from "module";
-import { compile, initSync } from "pomsky-wasm";
+import init, { compile } from "pomsky-wasm";
 import {
 	TransformResult,
 	UnpluginBuildContext,
@@ -28,6 +28,7 @@ type UserOptions = {
 	flavor?: Flavor;
 	includeOriginal?: boolean;
 	fileExtensions?: (string | RegExp)[];
+	pomskyWASM?: Uint8Array | Buffer;
 };
 
 const wasmPath = path.join(
@@ -35,7 +36,7 @@ const wasmPath = path.join(
 	"..",
 	"pomsky_wasm_bg.wasm"
 );
-initSync(fs.readFileSync(wasmPath));
+const defaultWASM = fs.readFileSync(wasmPath);
 
 const utilsImport = `import { makeMakeFunction } from "virtual:unplugin-pomsky/utils";`;
 const utilsModule = fs
@@ -323,6 +324,9 @@ const pluginInstance = createUnplugin((options: UserOptions) => {
 		},
 		transformInclude(filePath) {
 			return shouldTransformFile(filePath, options);
+		},
+		async buildStart() {
+			await init(options.pomskyWASM ?? defaultWASM);
 		},
 		load(id) {
 			if (id === resolvedVirtualUtilsID) {
