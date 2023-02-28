@@ -183,9 +183,7 @@ async function transformNonPomskyFile(
 	}
 
 	const magicCode = new MagicString(code);
-	const ast = unplugin.parse(code, {
-		comments: true,
-	});
+	const ast = unplugin.parse(code);
 
 	walk(ast as Node, {
 		enter(_node) {
