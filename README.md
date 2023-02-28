@@ -27,7 +27,7 @@ export default {
 		pomsky.vite({
 			flavor: "js", // default = "js"
 			includeOriginal: false, // default = false
-			fileExtensions: [".javascript"], // default = []; always checks [".js", ".jsx", ".ts", ".tsx"]
+			fileExtensions: [".javascript"], // default = []; always checks /"." ["c" "m"]? ["j" "t"] "s" "x"? $/
 		}),
 	],
 } as UserConfigExport;

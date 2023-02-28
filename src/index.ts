@@ -89,8 +89,8 @@ function shouldTransformNonPomskyFile(
 	filePath: string,
 	options: UserOptions
 ): boolean {
-	const defaultExtensions = [".js", ".jsx", ".ts", ".tsx"];
-	if (defaultExtensions.some((ext) => filePath.endsWith(ext))) {
+	const defaultExtensions = /\.[cm]?[jt]sx?$/;
+	if (defaultExtensions.test(filePath)) {
 		return true;
 	}
 
