@@ -6,6 +6,7 @@ export default {
 		pomsky.vite({
 			flavor: "js",
 			includeOriginal: true,
+			fileExtensions: [".javascript"],
 		}),
 	],
 	root: "./test",

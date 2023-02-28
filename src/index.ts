@@ -3,7 +3,12 @@
 
 import { createRequire } from "module";
 import { compile, initSync } from "pomsky-wasm";
-import { createUnplugin } from "unplugin";
+import {
+	TransformResult,
+	UnpluginBuildContext,
+	UnpluginContext,
+	createUnplugin,
+} from "unplugin";
 
 import fs from "node:fs";
 import path from "node:path";
@@ -11,8 +16,7 @@ import path from "node:path";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 
-import { parse } from "@swc/wasm";
-import df from "d-forest";
+import { Node, walk } from "estree-walker";
 import MagicString from "magic-string";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -168,87 +172,137 @@ function transformTemplate(
 }
 
 async function transformNonPomskyFile(
+	unplugin: UnpluginBuildContext & UnpluginContext,
 	filePath: string,
 	code: string,
 	options: UserOptions
-) {
-	const ast = await parse(code, {
-		syntax: "typescript",
-		decorators: true,
-		tsx: true,
+): Promise<TransformResult> {
+	// Quickly check if there might be an inline to transform.
+	if (!code.includes("pomsky$")) {
+		return;
+	}
+
+	const magicCode = new MagicString(code);
+	const ast = unplugin.parse(code, {
+		comments: true,
 	});
 
-	/*
-		S - Short: SWC, the only thing shorter than your name is your attention span.
-		W - Wacky: If SWC were a computer program, it would have a "wacky" offset.
-		C - Clumsy: SWC's offset is like his coordination - clumsy and out of sync.
-	*/
-	const offset = ast.span.start;
+	walk(ast as Node, {
+		enter(_node) {
+			if (_node.type !== "CallExpression") return;
+			if (_node.callee.type !== "Identifier") return;
+			if (_node.callee.name !== "pomsky$") return;
 
-	const nodes = df.findNodes(ast, (node) => {
-		if (node.type === "CallExpression") {
-			node = node.callee;
-			if (node.type === "Identifier" && node.value === "pomsky$") {
-				return true;
+			// Utility function for ensuring the node has the correct types.
+			function hasStartEnd<T>(
+				node: T
+			): T & { start: number; end: number } {
+				return node as T & { start: number; end: number };
 			}
-		}
-		return false;
-	});
 
-	if (nodes.length > 0) {
-		const msCode = new MagicString(code);
-		for (const node of nodes as any[]) {
-			if (
-				node.arguments[0].expression.expressions?.length > 0 ||
-				node.arguments[1]?.expression.expressions?.length > 0
-			) {
-				this.error(
-					"Inline Pomsky is precompiled. You can not include JavaScript variables in the source."
+			const node = hasStartEnd(_node);
+			const pomskyIdentifierNode = hasStartEnd(node.callee);
+			const pomskyCodeNode = hasStartEnd(node.arguments[0]);
+			const pomskyFlavorNode = hasStartEnd(node.arguments[1]);
+
+			function getErrorLocation(n: any): string {
+				return `${filePath}:${n.loc.start.line}:${n.loc.start.column}`;
+			}
+
+			if (pomskyCodeNode == null) {
+				unplugin.error(
+					`Inline Pomsky code is missing.\n${getErrorLocation(
+						pomskyIdentifierNode
+					)}`
+				);
+				return;
+			}
+
+			// Grab the Pomsky code.
+			let pomskyCode = null;
+			if (pomskyCodeNode.type === "Literal" && "value" in pomskyCodeNode) {
+				pomskyCode = pomskyCodeNode.value.toString();
+			} else if (pomskyCodeNode.type === "TemplateLiteral") {
+				// Cannot have any runtime expressions.
+				// Template literals here are only for multiline.
+				if (pomskyCodeNode.expressions.length > 0) {
+					unplugin.error(
+						`Inline Pomsky code cannot contain runtime expressions.\n${getErrorLocation(
+							pomskyCodeNode.expressions[0]
+						)}`
+					);
+					return;
+				}
+
+				// Add and subtract one to remove the quotes.
+				pomskyCode = code.slice(
+					pomskyCodeNode.start + 1,
+					pomskyCodeNode.end - 1
 				);
 			}
 
-			const pomskyCodeSpan = node.arguments[0].expression.span;
-			const pomskyCode = msCode
-				.toString()
-				.substring(
-					pomskyCodeSpan.start - offset + 1,
-					pomskyCodeSpan.end - offset - 1
+			if (pomskyCode == null) {
+				unplugin.error(
+					`Couldn't find the Pomsky code on inline transform.\n${getErrorLocation(
+						pomskyCodeNode
+					)}`
 				);
+				return;
+			}
 
-			const pomskyFlavorSpan = node.arguments[1]?.expression.span;
-			const pomskyFlavor = pomskyFlavorSpan
-				? msCode
-						.toString()
-						.substring(
-							pomskyFlavorSpan.start - offset + 1,
-							pomskyFlavorSpan.end - offset - 1
-						)
-				: null;
+			let pomskyFlavor = null;
+			if (pomskyFlavorNode != null) {
+				if (
+					pomskyFlavorNode.type === "Literal" &&
+					"value" in pomskyFlavorNode
+				) {
+					pomskyFlavor = pomskyFlavorNode.value.toString();
+				} else if (pomskyFlavorNode.type === "TemplateLiteral") {
+					// Cannot have any runtime expressions.
+					// Template literals here are only for multiline.
+					if (pomskyFlavorNode.expressions.length > 0) {
+						unplugin.error(
+							`Inline Pomsky flavor cannot contain runtime expressions.\n${getErrorLocation(
+								pomskyFlavorNode.expressions[0]
+							)}`
+						);
+						return;
+					}
 
-			msCode.update(
-				node.span.start - offset,
-				node.span.end - offset,
-				transformTemplate.bind(this)(
+					// Add and subtract one to remove the quotes.
+					pomskyFlavor = code.slice(
+						pomskyFlavorNode.start + 1,
+						pomskyFlavorNode.end - 1
+					);
+				}
+			}
+
+			magicCode.update(
+				node.start,
+				node.end,
+				transformTemplate(
 					functionalTemplate,
 					filePath,
 					pomskyCode,
-					{ ...options, flavor: pomskyFlavor ?? options.flavor ?? "js" },
+					{
+						...options,
+						flavor: pomskyFlavor ?? options.flavor ?? "js",
+					},
 					false
 				).code
 			);
-		}
+		},
+	});
 
+	if (magicCode.hasChanged()) {
 		return {
-			code: msCode.toString(),
-			map: msCode.generateMap({
+			code: magicCode.toString(),
+			map: magicCode.generateMap({
 				source: filePath,
-				file: `${path.basename(filePath)}.map`,
 				includeContent: true,
 			}),
 		};
 	}
-
-	return { code: code, map: null };
 }
 
 const pluginInstance = createUnplugin((options: UserOptions) => {
@@ -261,7 +315,7 @@ const pluginInstance = createUnplugin((options: UserOptions) => {
 			if (isPomskyFile(filePath)) {
 				return transformPomskyFile.bind(this)(filePath, code, options);
 			} else if (shouldTransformNonPomskyFile(filePath, options)) {
-				return transformNonPomskyFile.bind(this)(filePath, code, options);
+				return transformNonPomskyFile(this, filePath, code, options);
 			}
 		},
 	};

@@ -13,20 +13,16 @@ document.body.append(
 		textContent: regex,
 	})
 );
+
+console.log("Import.");
 console.log(make());
 
-const poms = pomsky$(
-	`
-['-+']?
-%
-('0' | ['1'-'9'] (','? ['0'-'9'])*)
-('.' ['0'-'9']+)?
-%
-[d]
-`,
-	"rust"
-);
+const poms = pomsky$(`[d]`, "js");
 
+console.log("Inline.");
+console.log(poms());
+console.log(poms.pomsky);
 console.log(poms.regex);
 
-console.log(poms("i").test("thingtHingthing"));
+// @ts-ignore Unknown file type.
+import("./test.javascript");

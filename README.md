@@ -27,6 +27,7 @@ export default {
 		pomsky.vite({
 			flavor: "js", // default = "js"
 			includeOriginal: false, // default = false
+			fileExtensions: [".javascript"], // default = []; always checks [".js", ".jsx", ".ts", ".tsx"]
 		}),
 	],
 } as UserConfigExport;
@@ -43,7 +44,7 @@ export default {
 
 ## Usage
 
-### Separate File
+### Import
 
 ```ts
 // The regex source is inlined and the Pomsky code is compiled on build.
