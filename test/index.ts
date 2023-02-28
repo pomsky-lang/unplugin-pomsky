@@ -17,7 +17,7 @@ document.body.append(
 console.log("Import.");
 console.log(make());
 
-const poms = pomsky$(`[d]`, "js");
+const poms = pomsky$(`[d]`);
 
 console.log("Inline.");
 console.log(poms());
