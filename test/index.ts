@@ -15,12 +15,12 @@ document.body.append(
 );
 
 console.log("Import.");
-console.log(make());
+console.log(make("gi"));
 
-const poms = pomsky$(`[d]`);
+const poms = pomsky$(`^ "-"? [d]+ ("." [d]+)? $`);
 
 console.log("Inline.");
-console.log(poms());
+console.log(poms({ sticky: true, unicode: false }));
 console.log(poms.pomsky);
 console.log(poms.regex);
 

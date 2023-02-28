@@ -18,22 +18,14 @@ import { fileURLToPath } from "url";
 
 import { Node, walk } from "estree-walker";
 import MagicString from "magic-string";
+import { Flavor } from "../types";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const _require = createRequire(import.meta.url);
 
 type UserOptions = {
-	flavor?:
-		| "js"
-		| "javascript"
-		| "java"
-		| ".net"
-		| "dotnet"
-		| "pcre"
-		| "python"
-		| "ruby"
-		| "rust";
+	flavor?: Flavor;
 	includeOriginal?: boolean;
 	fileExtensions?: (string | RegExp)[];
 };
@@ -50,6 +42,7 @@ const moduleTemplate = fs
 	.trim();
 const ftTemp = fs
 	.readFileSync(path.resolve(__dirname, "functionalTemplate.js"), "utf8")
+	.replace("export {};", "")
 	.trim();
 const functionalTemplate = ftTemp.substring(0, ftTemp.length - 1);
 
@@ -67,17 +60,23 @@ function isPomskyFile(filePath: string) {
 }
 
 function transformPomskyFile(
+	unplugin: UnpluginBuildContext & UnpluginContext,
 	filePath: string,
 	code: string,
 	options: UserOptions
 ) {
-	const pomskyFlavor = new URL(filePath).searchParams.get("flavor");
+	const pomskyFlavor: string = new URL(filePath).searchParams.get("flavor");
 
-	return transformTemplate.bind(this)(
+	return transformTemplate(
+		unplugin,
 		moduleTemplate,
 		filePath,
 		code,
-		{ ...options, flavor: pomskyFlavor ?? options.flavor ?? "js" },
+		{
+			...options,
+			// It's "safe" to wrecklessly cast here because the compiler will throw its own error.
+			flavor: (pomskyFlavor as Flavor) ?? options.flavor ?? "js",
+		},
 		true
 	);
 }
@@ -108,6 +107,7 @@ function shouldTransformFile(filePath: string, options: UserOptions) {
 }
 
 function transformTemplate(
+	unplugin: UnpluginBuildContext & UnpluginContext,
 	template: string,
 	filePath: string,
 	code: string,
@@ -134,7 +134,7 @@ function transformTemplate(
 			error += `\n${context}`;
 			error += "\n```";
 		}
-		this.error(error);
+		unplugin.error(error);
 		return;
 	}
 
@@ -279,12 +279,14 @@ async function transformNonPomskyFile(
 				node.start,
 				node.end,
 				transformTemplate(
+					unplugin,
 					functionalTemplate,
 					filePath,
 					pomskyCode,
 					{
 						...options,
-						flavor: pomskyFlavor ?? options.flavor ?? "js",
+						// It's "safe" to wrecklessly cast here because the compiler will throw its own error.
+						flavor: (pomskyFlavor as Flavor) ?? options.flavor ?? "js",
 					},
 					false
 				).code
@@ -311,7 +313,7 @@ const pluginInstance = createUnplugin((options: UserOptions) => {
 		},
 		async transform(code, filePath) {
 			if (isPomskyFile(filePath)) {
-				return transformPomskyFile.bind(this)(filePath, code, options);
+				return transformPomskyFile(this, filePath, code, options);
 			} else if (shouldTransformNonPomskyFile(filePath, options)) {
 				return transformNonPomskyFile(this, filePath, code, options);
 			}

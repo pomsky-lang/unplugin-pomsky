@@ -101,3 +101,16 @@ make.pomsky;
 // The regex source.
 make.regex;
 ```
+
+## Unicode Aware
+
+Pomsky is unicode aware by default, so the unicode flag is enabled by default.
+
+There's no clean way to represent disabling unicode with the standard string format, so the plugin provides an object form which has the ability to disable unicode.
+
+```ts
+make().flags; // "u"
+make("").flags; // "u"
+make("i").flags; // "iu"
+make({ ignoreCase: true, unicode: false }).flags; // "i"
+```

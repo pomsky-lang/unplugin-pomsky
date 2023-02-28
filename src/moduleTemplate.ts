@@ -1,18 +1,51 @@
-export const pomsky: string | null = "$$POMSKY$$";
-export const regex = "$$REGEX$$";
+import type {
+	Flags,
+	MakeFunction,
+	MakeFunctionInstance,
+	PomskyValue,
+	RegExValue,
+} from "../types";
 
-const cache = new Map();
+const pomsky: PomskyValue = "$$POMSKY$$";
+const regex: RegExValue = "$$REGEX$$";
 
-export function make(flags: string) {
-	if (!flags) flags = "";
+const cache = new Map<string, RegExp>();
 
-	if (cache.has(flags)) {
-		return cache.get(flags);
+const flagMap: Record<keyof Flags, string> = {
+	hasIndices: "d",
+	global: "g",
+	ignoreCase: "i",
+	multiline: "m",
+	dotAll: "s",
+	unicode: "u",
+	sticky: "y",
+};
+function makeFlagsString(flags: Flags): string {
+	let flagsString = "";
+	let hadUnicode = false;
+	for (const [flag, enabled] of Object.entries(flags)) {
+		if (flag === "unicode") hadUnicode = true;
+		flagsString += enabled ? flagMap[flag] : "";
 	}
-
-	const compiledRegex = new RegExp(regex, flags);
-	cache.set(flags, compiledRegex);
-	return compiledRegex;
+	return flagsString + (hadUnicode ? "" : "u");
 }
 
+const makeFunction: MakeFunction = (flags) => {
+	const flagsString =
+		typeof flags === "string" ? `u${flags}` : makeFlagsString(flags ?? {});
+
+	if (cache.has(flagsString)) {
+		return cache.get(flagsString);
+	}
+
+	const compiledRegex = new RegExp(regex, flagsString);
+	cache.set(flagsString, compiledRegex);
+	return compiledRegex;
+};
+const make: MakeFunctionInstance = Object.assign(makeFunction, {
+	pomsky,
+	regex,
+});
+
+export { pomsky, regex };
 export default make;

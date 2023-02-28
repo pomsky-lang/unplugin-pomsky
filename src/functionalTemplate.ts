@@ -1,25 +1,54 @@
+import type {
+	Flags,
+	MakeFunction,
+	MakeFunctionInstance,
+	PomskyValue,
+	RegExValue,
+} from "../types";
+
 (() => {
-	const pomsky: string | null = "$$POMSKY$$";
-	const regex = "$$REGEX$$";
+	const pomsky: PomskyValue = "$$POMSKY$$";
+	const regex: RegExValue = "$$REGEX$$";
 
-	const cache = new Map();
+	const cache = new Map<string, RegExp>();
 
-	return Object.assign(
-		function (flags: string) {
-			if (!flags) flags = "";
-
-			if (cache.has(flags)) {
-				return cache.get(flags);
-			}
-
-			const compiledRegex = new RegExp(regex, flags);
-			cache.set(flags, compiledRegex);
-			return compiledRegex;
-		},
-		{
-			pomsky,
-			regex,
-			cache,
+	const flagMap: Record<keyof Flags, string> = {
+		hasIndices: "d",
+		global: "g",
+		ignoreCase: "i",
+		multiline: "m",
+		dotAll: "s",
+		unicode: "u",
+		sticky: "y",
+	};
+	function makeFlagsString(flags: Flags): string {
+		let flagsString = "";
+		let hadUnicode = false;
+		for (const [flag, enabled] of Object.entries(flags)) {
+			if (flag === "unicode") hadUnicode = true;
+			flagsString += enabled ? flagMap[flag] : "";
 		}
-	);
+		return flagsString + (hadUnicode ? "" : "u");
+	}
+
+	const makeFunction: MakeFunction = (flags) => {
+		const flagsString =
+			typeof flags === "string"
+				? `u${flags}`
+				: makeFlagsString(flags ?? {});
+
+		if (cache.has(flagsString)) {
+			return cache.get(flagsString);
+		}
+
+		const compiledRegex = new RegExp(regex, flagsString);
+		cache.set(flagsString, compiledRegex);
+		return compiledRegex;
+	};
+	const make: MakeFunctionInstance = Object.assign(makeFunction, {
+		pomsky,
+		regex,
+	});
+
+	return make;
 })();
