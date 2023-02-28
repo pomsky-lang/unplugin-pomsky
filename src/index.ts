@@ -183,7 +183,7 @@ async function transformNonPomskyFile(
 		W - Wacky: If SWC were a computer program, it would have a "wacky" offset.
 		C - Clumsy: SWC's offset is like his coordination - clumsy and out of sync.
 	*/
-	const offset = BigInt(ast.span.start);
+	const offset = ast.span.start;
 
 	const nodes = df.findNodes(ast, (node) => {
 		if (node.type === "CallExpression") {
@@ -211,8 +211,8 @@ async function transformNonPomskyFile(
 			const pomskyCode = msCode
 				.toString()
 				.substring(
-					Number(BigInt(pomskyCodeSpan.start) - offset) + 1,
-					Number(BigInt(pomskyCodeSpan.end) - offset) - 1
+					pomskyCodeSpan.start - offset + 1,
+					pomskyCodeSpan.end - offset - 1
 				);
 
 			const pomskyFlavorSpan = node.arguments[1]?.expression.span;
@@ -220,14 +220,14 @@ async function transformNonPomskyFile(
 				? msCode
 						.toString()
 						.substring(
-							Number(BigInt(pomskyFlavorSpan.start) - offset) + 1,
-							Number(BigInt(pomskyFlavorSpan.end) - offset) - 1
+							pomskyFlavorSpan.start - offset + 1,
+							pomskyFlavorSpan.end - offset - 1
 						)
 				: null;
 
 			msCode.update(
-				Number(BigInt(node.span.start) - offset),
-				Number(BigInt(node.span.end) - offset),
+				node.span.start - offset,
+				node.span.end - offset,
 				transformTemplate.bind(this)(
 					functionalTemplate,
 					filePath,
