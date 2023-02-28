@@ -30,13 +30,7 @@ export type MakeFunctionInstance = MakeFunction & {
 export type CacheMap = Map<string, RegExp>;
 
 declare global {
-	function pomsky$(
-		code: string,
-		flavor?: Flavor
-	): ((flags?: Flags) => RegExp) & {
-		pomsky: string | null;
-		regex: string;
-	};
+	function pomsky$(code: string, flavor?: Flavor): MakeFunctionInstance;
 }
 
 export {};

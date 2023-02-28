@@ -1,6 +1,6 @@
 {
 	"name": "unplugin-pomsky",
-	"version": "1.2.1",
+	"version": "1.2.2",
 	"description": "Use Pomsky along with your JavaScript.",
 	"types": "./dist/index.d.ts",
 	"exports": {
