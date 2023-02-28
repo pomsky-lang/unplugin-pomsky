@@ -37,12 +37,16 @@ const wasmPath = path.join(
 );
 initSync(fs.readFileSync(wasmPath));
 
+const utilsImport = `import { makeMakeFunction } from "virtual:unplugin-pomsky/utils";`;
+const utilsModule = fs
+	.readFileSync(path.resolve(__dirname, "utils.js"), "utf8")
+	.trim();
 const moduleTemplate = fs
 	.readFileSync(path.resolve(__dirname, "moduleTemplate.js"), "utf8")
 	.trim();
 const ftTemp = fs
 	.readFileSync(path.resolve(__dirname, "functionalTemplate.js"), "utf8")
-	.replace("export {};", "")
+	.replace(utilsImport, "")
 	.trim();
 const functionalTemplate = ftTemp.substring(0, ftTemp.length - 1);
 
@@ -183,6 +187,9 @@ async function transformNonPomskyFile(
 	}
 
 	const magicCode = new MagicString(code);
+
+	magicCode.prepend(utilsImport);
+
 	const ast = unplugin.parse(code);
 
 	walk(ast as Node, {
@@ -305,11 +312,22 @@ async function transformNonPomskyFile(
 	}
 }
 
+const virtualUtilsID = "virtual:unplugin-pomsky/utils";
+const resolvedVirtualUtilsID = "\0" + virtualUtilsID;
+
 const pluginInstance = createUnplugin((options: UserOptions) => {
 	return {
 		name: "unplugin-pomsky",
+		resolveId(id) {
+			if (id === virtualUtilsID) return resolvedVirtualUtilsID;
+		},
 		transformInclude(filePath) {
 			return shouldTransformFile(filePath, options);
+		},
+		load(id) {
+			if (id === resolvedVirtualUtilsID) {
+				return utilsModule;
+			}
 		},
 		async transform(code, filePath) {
 			if (isPomskyFile(filePath)) {

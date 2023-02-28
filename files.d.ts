@@ -31,10 +31,12 @@ type Flavor =
 type PomskyValue = string | null;
 type RegExValue = string;
 
-type MakeFunction = ((flags?: string | Flags) => RegExp) & {
+type MakeFunction = (flags?: string | Flags) => RegExp;
+type MakeFunctionInstance = MakeFunction & {
 	pomsky: PomskyValue;
 	regex: RegExValue;
 };
+type CacheMap = Map<string, RegExp>;
 
 declare module "*.pom" {
 	export const pomsky: PomskyValue;

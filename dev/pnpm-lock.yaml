@@ -1,0 +1,7 @@
+lockfileVersion: 5.4
+
+specifiers:
+  unplugin-pomsky: link:..
+
+dependencies:
+  unplugin-pomsky: link:..

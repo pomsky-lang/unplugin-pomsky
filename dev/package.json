@@ -1,0 +1,6 @@
+{
+	"type": "module",
+	"dependencies": {
+		"unplugin-pomsky": "link:.."
+	}
+}

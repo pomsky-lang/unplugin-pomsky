@@ -1,6 +1,6 @@
 {
 	"name": "unplugin-pomsky",
-	"version": "1.2.0",
+	"version": "1.2.1",
 	"description": "Use Pomsky along with your JavaScript.",
 	"types": "./dist/index.d.ts",
 	"exports": {
@@ -30,7 +30,8 @@
 	"license": "MIT",
 	"scripts": {
 		"build": "tsc",
-		"dev": "pnpm run build && vite"
+		"dev": "pnpm run build && cd ./dev && vite",
+		"build:dev": "pnpm run build && cd ./dev && vite build && vite serve"
 	},
 	"devDependencies": {
 		"@types/node": "^18.14.0",

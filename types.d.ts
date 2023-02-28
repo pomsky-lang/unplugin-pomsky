@@ -27,6 +27,7 @@ export type MakeFunctionInstance = MakeFunction & {
 	pomsky: PomskyValue;
 	regex: RegExValue;
 };
+export type CacheMap = Map<string, RegExp>;
 
 declare global {
 	function pomsky$(

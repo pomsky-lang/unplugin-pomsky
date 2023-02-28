@@ -6,7 +6,10 @@
 		"moduleResolution": "node",
 		"esModuleInterop": true,
 		"types": ["@types/node"],
-		"declaration": true
+		"declaration": true,
+		"paths": {
+			"virtual:unplugin-pomsky/utils": ["./src/utils.ts"]
+		}
 	},
 	"include": ["./src"],
 	"exclude": ["./node_modules"]

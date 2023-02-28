@@ -1,5 +1,5 @@
+import pomsky from "unplugin-pomsky";
 import { UserConfigExport } from "vite";
-import pomsky from "./dist";
 
 export default {
 	plugins: [
@@ -9,5 +9,5 @@ export default {
 			fileExtensions: [".javascript"],
 		}),
 	],
-	root: "./test",
+	root: "./",
 } as UserConfigExport;
