@@ -26,6 +26,9 @@
 		"rollup",
 		"webpack"
 	],
+	"publishConfig": {
+		"access": "public"
+	},
 	"author": "Kyza",
 	"license": "MIT",
 	"scripts": {
