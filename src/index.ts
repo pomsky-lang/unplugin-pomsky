@@ -327,8 +327,6 @@ const pluginInstance = createUnplugin((options: UserOptions) => {
 			if (id === virtualUtilsID) return resolvedVirtualUtilsID;
 		},
 		transformInclude(filePath) {
-			console.log(filePath, shouldTransformFile(filePath, options));
-
 			return shouldTransformFile(filePath, options);
 		},
 		async buildStart() {
