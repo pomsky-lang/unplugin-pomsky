@@ -60,6 +60,10 @@ function findRowColContext(str: string, start: number) {
 	return { row, column, context };
 }
 
+function escapeRegExp(str: string): string {
+	return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function isPomskyFile(filePath: string) {
 	return /\.pom(?:sky)?(?:\?.+)?/.test(filePath);
 }
@@ -90,14 +94,14 @@ function shouldTransformNonPomskyFile(
 	filePath: string,
 	options: UserOptions
 ): boolean {
-	const defaultExtensions = /\.[cm]?[jt]sx?$/;
+	const defaultExtensions = /\.[cm]?[jt]sx?(?:\?.+)?$/;
 	if (defaultExtensions.test(filePath)) {
 		return true;
 	}
 
 	return options.fileExtensions?.some((ext) => {
 		if (typeof ext === "string") {
-			if (filePath.endsWith(ext)) return true;
+			if (new RegExp(`${escapeRegExp(ext)}(?:\\?.+)?`)) return true;
 			return false;
 		}
 		return ext.test(filePath);
@@ -318,11 +322,13 @@ const resolvedVirtualUtilsID = "\0" + virtualUtilsID;
 
 const pluginInstance = createUnplugin((options: UserOptions) => {
 	return {
-		name: "unplugin-pomsky",
+		name: "@pomsky-lang/unplugin",
 		resolveId(id) {
 			if (id === virtualUtilsID) return resolvedVirtualUtilsID;
 		},
 		transformInclude(filePath) {
+			console.log(filePath, shouldTransformFile(filePath, options));
+
 			return shouldTransformFile(filePath, options);
 		},
 		async buildStart() {
