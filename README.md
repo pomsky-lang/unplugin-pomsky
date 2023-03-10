@@ -14,13 +14,13 @@ Use [Pomsky](https://pomsky-lang.org/) along with your JavaScript.
 ## Installation
 
 ```bash
-pnpm i -D unplugin-pomsky
+pnpm i -D @pomsky/unplugin
 ```
 
 `vite.config.ts`
 ```ts
 import fs from "node:fs";
-import pomsky from "unplugin-pomsky";
+import pomsky from "@pomsky/unplugin";
 import { UserConfigExport } from "vite";
 
 export default {
@@ -39,7 +39,7 @@ export default {
 ```ts
 {
 	"compilerOptions": {
-		"types": ["unplugin-pomsky"]
+		"types": ["@pomsky/unplugin"]
 	}
 }
 ```

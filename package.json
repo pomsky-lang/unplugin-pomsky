@@ -1,5 +1,5 @@
 {
-	"name": "unplugin-pomsky",
+	"name": "@pomsky/unplugin",
 	"version": "1.2.4",
 	"description": "Use Pomsky along with your JavaScript.",
 	"types": "./dist/index.d.ts",
