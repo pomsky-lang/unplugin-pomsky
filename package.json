@@ -1,6 +1,6 @@
 {
 	"name": "@pomsky-lang/unplugin",
-	"version": "1.2.4",
+	"version": "1.2.5",
 	"description": "Use Pomsky along with your JavaScript.",
 	"types": "./dist/index.d.ts",
 	"exports": {
@@ -35,6 +35,10 @@
 		"build": "tsc",
 		"dev": "pnpm run build && cd ./dev && vite",
 		"build:dev": "pnpm run build && cd ./dev && vite build && vite serve"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/pomsky-lang/unplugin-pomsky.git"
 	},
 	"devDependencies": {
 		"@types/node": "^18.14.0",
