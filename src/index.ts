@@ -12,6 +12,7 @@ import {
 
 import fs from "node:fs";
 import path from "node:path";
+import url from "node:url";
 
 import { dirname } from "path";
 import { fileURLToPath } from "url";
@@ -74,7 +75,9 @@ function transformPomskyFile(
 	code: string,
 	options: UserOptions
 ) {
-	const pomskyFlavor: string = new URL(filePath).searchParams.get("flavor");
+	const pomskyFlavor: string = url
+		.pathToFileURL(filePath)
+		.searchParams.get("flavor");
 
 	return transformTemplate(
 		unplugin,
