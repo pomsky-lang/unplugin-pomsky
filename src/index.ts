@@ -3,12 +3,7 @@
 
 import { createRequire } from "module";
 import init, { compile } from "pomsky-wasm";
-import {
-	TransformResult,
-	UnpluginBuildContext,
-	UnpluginContext,
-	createUnplugin,
-} from "unplugin";
+import { TransformResult, UnpluginBuildContext, UnpluginContext, createUnplugin } from "unplugin";
 
 import fs from "node:fs";
 import path from "node:path";
@@ -32,20 +27,12 @@ type UserOptions = {
 	pomskyWASM?: Uint8Array | Buffer;
 };
 
-const wasmPath = path.join(
-	_require.resolve("pomsky-wasm"),
-	"..",
-	"pomsky_wasm_bg.wasm"
-);
+const wasmPath = path.join(_require.resolve("pomsky-wasm"), "..", "pomsky_wasm_bg.wasm");
 const defaultWASM = fs.readFileSync(wasmPath);
 
 const utilsImport = `import { makeMakeFunction } from "virtual:unplugin-pomsky/utils";`;
-const utilsModule = fs
-	.readFileSync(path.resolve(__dirname, "utils.js"), "utf8")
-	.trim();
-const moduleTemplate = fs
-	.readFileSync(path.resolve(__dirname, "moduleTemplate.js"), "utf8")
-	.trim();
+const utilsModule = fs.readFileSync(path.resolve(__dirname, "utils.js"), "utf8").trim();
+const moduleTemplate = fs.readFileSync(path.resolve(__dirname, "moduleTemplate.js"), "utf8").trim();
 const ftTemp = fs
 	.readFileSync(path.resolve(__dirname, "functionalTemplate.js"), "utf8")
 	.replace(utilsImport, "")
@@ -75,9 +62,7 @@ function transformPomskyFile(
 	code: string,
 	options: UserOptions
 ) {
-	const pomskyFlavor: string = url
-		.pathToFileURL(filePath)
-		.searchParams.get("flavor");
+	const pomskyFlavor: string = url.pathToFileURL(filePath).searchParams.get("flavor");
 
 	return transformTemplate(
 		unplugin,
@@ -93,10 +78,7 @@ function transformPomskyFile(
 	);
 }
 
-function shouldTransformNonPomskyFile(
-	filePath: string,
-	options: UserOptions
-): boolean {
+function shouldTransformNonPomskyFile(filePath: string, options: UserOptions): boolean {
 	const defaultExtensions = /\.[cm]?[jt]sx?(?:\?.+)?$/;
 	if (defaultExtensions.test(filePath)) {
 		return true;
@@ -112,10 +94,7 @@ function shouldTransformNonPomskyFile(
 }
 
 function shouldTransformFile(filePath: string, options: UserOptions) {
-	return (
-		isPomskyFile(filePath) ||
-		shouldTransformNonPomskyFile(filePath, options)
-	);
+	return isPomskyFile(filePath) || shouldTransformNonPomskyFile(filePath, options);
 }
 
 function transformTemplate(
@@ -132,10 +111,7 @@ function transformTemplate(
 		for (const item of diagnostics) {
 			error += `\n${item.kind} ${item.severity}: ${item.code}`;
 
-			const { row, column, context } = findRowColContext(
-				code,
-				item.range[0]
-			);
+			const { row, column, context } = findRowColContext(code, item.range[0]);
 			error += `\n${
 				item.message
 			} at line ${row.toLocaleString()}, column ${column.toLocaleString()}.`;
@@ -150,22 +126,17 @@ function transformTemplate(
 		return;
 	}
 
-	const pomsky = options.includeOriginal
-		? `\`${code.replace(/`/g, "\\`")}\``
-		: "null";
+	const pomsky = options.includeOriginal ? `\`${code.replace(/`/g, "\\`")}\`` : "null";
 	const regex = output?.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 
-	const filledTemplate = template.replace(
-		/("\$\$POMSKY\$\$"|\$\$REGEX\$\$)/g,
-		(s) => {
-			if (s === '"$$POMSKY$$"') {
-				return pomsky;
-			} else if (s === "$$REGEX$$") {
-				return regex;
-			}
-			return s;
+	const filledTemplate = template.replace(/("\$\$POMSKY\$\$"|\$\$REGEX\$\$)/g, (s) => {
+		if (s === '"$$POMSKY$$"') {
+			return pomsky;
+		} else if (s === "$$REGEX$$") {
+			return regex;
 		}
-	);
+		return s;
+	});
 
 	if (!sourceMap) return { code: filledTemplate, map: null };
 
@@ -207,9 +178,7 @@ async function transformNonPomskyFile(
 			if (_node.callee.name !== "pomsky$") return;
 
 			// Utility function for ensuring the node has the correct types.
-			function hasStartEnd<T>(
-				node: T
-			): T & { start: number; end: number } {
+			function hasStartEnd<T>(node: T): T & { start: number; end: number } {
 				return node as T & { start: number; end: number };
 			}
 
@@ -224,9 +193,7 @@ async function transformNonPomskyFile(
 
 			if (pomskyCodeNode == null) {
 				unplugin.error(
-					`Inline Pomsky code is missing.\n${getErrorLocation(
-						pomskyIdentifierNode
-					)}`
+					`Inline Pomsky code is missing.\n${getErrorLocation(pomskyIdentifierNode)}`
 				);
 				return;
 			}
@@ -248,10 +215,7 @@ async function transformNonPomskyFile(
 				}
 
 				// Add and subtract one to remove the quotes.
-				pomskyCode = code.slice(
-					pomskyCodeNode.start + 1,
-					pomskyCodeNode.end - 1
-				);
+				pomskyCode = code.slice(pomskyCodeNode.start + 1, pomskyCodeNode.end - 1);
 			}
 
 			if (pomskyCode == null) {
@@ -265,10 +229,7 @@ async function transformNonPomskyFile(
 
 			let pomskyFlavor = null;
 			if (pomskyFlavorNode != null) {
-				if (
-					pomskyFlavorNode.type === "Literal" &&
-					"value" in pomskyFlavorNode
-				) {
+				if (pomskyFlavorNode.type === "Literal" && "value" in pomskyFlavorNode) {
 					pomskyFlavor = pomskyFlavorNode.value.toString();
 				} else if (pomskyFlavorNode.type === "TemplateLiteral") {
 					// Cannot have any runtime expressions.
@@ -283,10 +244,7 @@ async function transformNonPomskyFile(
 					}
 
 					// Add and subtract one to remove the quotes.
-					pomskyFlavor = code.slice(
-						pomskyFlavorNode.start + 1,
-						pomskyFlavorNode.end - 1
-					);
+					pomskyFlavor = code.slice(pomskyFlavorNode.start + 1, pomskyFlavorNode.end - 1);
 				}
 			}
 
