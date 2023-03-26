@@ -218,9 +218,7 @@ async function transformNonPomskyFile(
 
 			if (pomskyCodeNode == null) {
 				unplugin.error(
-					`Inline Pomsky code is missing.\n${getErrorLocation(
-						pomskyIdentifierNode
-					)}`
+					`Inline Pomsky code is missing.\n${getErrorLocation(pomskyIdentifierNode)}`
 				);
 				return;
 			}
@@ -242,10 +240,7 @@ async function transformNonPomskyFile(
 				}
 
 				// Add and subtract one to remove the quotes.
-				pomskyCode = code.slice(
-					pomskyCodeNode.start + 1,
-					pomskyCodeNode.end - 1
-				);
+				pomskyCode = code.slice(pomskyCodeNode.start + 1, pomskyCodeNode.end - 1);
 			}
 
 			if (pomskyCode == null) {
@@ -259,10 +254,7 @@ async function transformNonPomskyFile(
 
 			let pomskyFlavor = null;
 			if (pomskyFlavorNode != null) {
-				if (
-					pomskyFlavorNode.type === "Literal" &&
-					"value" in pomskyFlavorNode
-				) {
+				if (pomskyFlavorNode.type === "Literal" && "value" in pomskyFlavorNode) {
 					pomskyFlavor = pomskyFlavorNode.value.toString();
 				} else if (pomskyFlavorNode.type === "TemplateLiteral") {
 					// Cannot have any runtime expressions.
