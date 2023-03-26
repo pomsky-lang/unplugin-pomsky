@@ -113,8 +113,7 @@ function shouldTransformNonPomskyFile(
 
 function shouldTransformFile(filePath: string, options: UserOptions) {
 	return (
-		isPomskyFile(filePath) ||
-		shouldTransformNonPomskyFile(filePath, options)
+		isPomskyFile(filePath) || shouldTransformNonPomskyFile(filePath, options)
 	);
 }
 
@@ -132,10 +131,7 @@ function transformTemplate(
 		for (const item of diagnostics) {
 			error += `\n${item.kind} ${item.severity}: ${item.code}`;
 
-			const { row, column, context } = findRowColContext(
-				code,
-				item.range[0]
-			);
+			const { row, column, context } = findRowColContext(code, item.range[0]);
 			error += `\n${
 				item.message
 			} at line ${row.toLocaleString()}, column ${column.toLocaleString()}.`;
@@ -207,9 +203,7 @@ async function transformNonPomskyFile(
 			if (_node.callee.name !== "pomsky$") return;
 
 			// Utility function for ensuring the node has the correct types.
-			function hasStartEnd<T>(
-				node: T
-			): T & { start: number; end: number } {
+			function hasStartEnd<T>(node: T): T & { start: number; end: number } {
 				return node as T & { start: number; end: number };
 			}
 
