@@ -31,7 +31,8 @@ export function makeMakeFunction(
 	cache: CacheMap
 ): MakeFunctionInstance {
 	const makeFunction: MakeFunction = (flags) => {
-		const flagsString = typeof flags === "string" ? `u${flags}` : makeFlagsString(flags ?? {});
+		const flagsString =
+			typeof flags === "string" ? `u${flags}` : makeFlagsString(flags ?? {});
 
 		if (cache.has(flagsString)) {
 			return cache.get(flagsString);

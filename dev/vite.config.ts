@@ -8,7 +8,9 @@ export default {
 			flavor: "js",
 			includeOriginal: true,
 			fileExtensions: [".javascript"],
-			pomskyWASM: fs.readFileSync("./node_modules/pomsky-wasm/pomsky_wasm_bg.wasm"),
+			pomskyWASM: fs.readFileSync(
+				"./node_modules/pomsky-wasm/pomsky_wasm_bg.wasm"
+			),
 		}),
 	],
 	root: "./",
